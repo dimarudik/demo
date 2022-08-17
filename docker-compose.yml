@@ -1,9 +1,11 @@
 version: '3.9'
 services:
+
   balancer:
+    image: bitnami/openresty
+    container_name: balancer
     ports:
       - '8080:80'
-    image: bitnami/openresty
     volumes:
       - ${PWD}/src/main/resources/nginx.conf:/opt/bitnami/openresty/nginx/conf/nginx.conf:ro
     networks:
@@ -14,6 +16,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.db01
+    container_name: app01
     restart: on-failure
     networks:
       my-network:
@@ -22,6 +25,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.db01
+    container_name: app02
     restart: on-failure
     networks:
       my-network:
@@ -30,6 +34,7 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.db02
+    container_name: app03
     restart: on-failure
     networks:
       my-network:
@@ -38,30 +43,82 @@ services:
     build:
       context: ./
       dockerfile: Dockerfile.db02
+    container_name: app04
     restart: on-failure
     networks:
       my-network:
         ipv4_address: 172.22.0.17
 
+  app05:
+    build:
+      context: ./
+      dockerfile: Dockerfile.db03
+    container_name: app05
+    restart: on-failure
+    networks:
+      my-network:
+        ipv4_address: 172.22.0.14
+  app06:
+    build:
+      context: ./
+      dockerfile: Dockerfile.db03
+    container_name: app06
+    restart: on-failure
+    networks:
+      my-network:
+        ipv4_address: 172.22.0.15
+
   db01:
     image: mysql
+    command: [
+      "--default-authentication-plugin=mysql_native_password",
+      "--enforce-gtid-consistency=ON",
+      "--gtid-mode=ON",
+      "--server-id=1"
+    ]
+    container_name: db01
+    hostname: db01
     environment:
       MYSQL_DATABASE: 'shard'
       MYSQL_USER: 'shard'
       MYSQL_PASSWORD: 'shard'
-      MYSQL_ROOT_PASSWORD: 'oracle_4U'
+      MYSQL_ROOT_PASSWORD: 'mypass'
     networks:
       my-network:
         ipv4_address: 172.22.0.91
   db02:
-    image: postgres
+    image: mysql
+    command: [
+      "--default-authentication-plugin=mysql_native_password",
+      "--enforce-gtid-consistency=ON",
+      "--gtid-mode=ON",
+      "--server-id=1"
+    ]
+    container_name: db02
+    hostname: db02
     environment:
-      POSTGRES_DB: 'shard'
-      POSTGRES_USER: 'shard'
-      POSTGRES_PASSWORD: 'shard'
+      MYSQL_DATABASE: 'shard'
+      MYSQL_USER: 'shard'
+      MYSQL_PASSWORD: 'shard'
+      MYSQL_ROOT_PASSWORD: 'mypass'
     networks:
       my-network:
         ipv4_address: 172.22.0.92
+  db03:
+    image: mysql
+    command: [
+      "--default-authentication-plugin=mysql_native_password",
+      "--enforce-gtid-consistency=ON",
+      "--gtid-mode=ON",
+      "--server-id=2"
+    ]
+    container_name: db03
+    hostname: db03
+    environment:
+      MYSQL_ROOT_PASSWORD: 'mypass'
+    networks:
+      my-network:
+        ipv4_address: 172.22.0.93
 
 networks:
   my-network:
