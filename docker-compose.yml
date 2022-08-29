@@ -2,12 +2,14 @@ version: '3.9'
 services:
 
   balancer:
-    image: bitnami/openresty
+    image: openresty/openresty
     container_name: balancer
+    hostname: balancer
     ports:
       - '8080:80'
     volumes:
-      - ${PWD}/src/main/resources/nginx.conf:/opt/bitnami/openresty/nginx/conf/nginx.conf:ro
+      - ${PWD}/src/main/resources/nginx.conf:/etc/openresty/nginx.conf:ro
+    #      - ${PWD}/src/main/resources/nginx.conf:/opt/bitnami/openresty/nginx/conf/nginx.conf:ro
     networks:
       my-network:
         ipv4_address: 172.22.0.2
@@ -68,6 +70,25 @@ services:
       my-network:
         ipv4_address: 172.22.0.15
 
+  app07:
+    build:
+      context: ./
+      dockerfile: Dockerfile.db04
+    container_name: app07
+    restart: on-failure
+    networks:
+      my-network:
+        ipv4_address: 172.22.0.18
+  app08:
+    build:
+      context: ./
+      dockerfile: Dockerfile.db04
+    container_name: app08
+    restart: on-failure
+    networks:
+      my-network:
+        ipv4_address: 172.22.0.19
+
   db01:
     image: mysql
     command: [
@@ -119,6 +140,21 @@ services:
     networks:
       my-network:
         ipv4_address: 172.22.0.93
+  db04:
+    image: mysql
+    command: [
+      "--default-authentication-plugin=mysql_native_password",
+      "--enforce-gtid-consistency=ON",
+      "--gtid-mode=ON",
+      "--server-id=2"
+    ]
+    container_name: db04
+    hostname: db04
+    environment:
+      MYSQL_ROOT_PASSWORD: 'mypass'
+    networks:
+      my-network:
+        ipv4_address: 172.22.0.94
 
 networks:
   my-network:
