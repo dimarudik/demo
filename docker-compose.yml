@@ -58,21 +58,30 @@ services:
       MYSQL_DATABASE: 'shard'
       MYSQL_USER: 'shard'
       MYSQL_PASSWORD: 'shard'
-      MYSQL_ROOT_PASSWORD: 'oracle_4U'
+      MYSQL_ROOT_PASSWORD: 'root'
     networks:
       my-network:
         ipv4_address: 172.22.0.91
   db02:
-    image: postgres
+    image: mysql
     container_name: db02
     hostname: db02
     environment:
-      POSTGRES_DB: 'shard'
-      POSTGRES_USER: 'shard'
-      POSTGRES_PASSWORD: 'shard'
+      MYSQL_DATABASE: 'shard'
+      MYSQL_USER: 'shard'
+      MYSQL_PASSWORD: 'shard'
+      MYSQL_ROOT_PASSWORD: 'root'
     networks:
       my-network:
         ipv4_address: 172.22.0.92
+
+  red:
+    image: redis
+    container_name: red
+    hostname: red
+    networks:
+      my-network:
+        ipv4_address: 172.22.0.101
 
 networks:
   my-network:

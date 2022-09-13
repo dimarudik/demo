@@ -1,0 +1,4 @@
+curl -i -X POST http://localhost:8080/payment -H "Content-Type:application/json" -H "clientid:5-339CVCCVD" -d '{"clientId": "5-339CVCCVD", "amount": "3000", "timestamp": "2022-08-04T15:00:48", "status": "I"}'
+curl -i -X POST http://localhost:8080/payment -H "Content-Type:application/json" -H "clientid:5-6PAMOQ6V" -d '{"clientId": "5-6PAMOQ6V", "amount": "250", "timestamp": "2022-08-04T15:00:48", "status": "I"}'
+curl -i -X POST http://localhost:8080/payment -H "Content-Type:application/json" -H "clientid:5-ABELKTQM" -d '{"clientId": "5-ABELKTQM", "amount": "3000", "timestamp": "2022-08-04T15:00:48", "status": "I"}'
+curl -i -X POST http://localhost:8080/payment -H "Content-Type:application/json" -H "clientid:5-CLS23Y90" -d '{"clientId": "5-CLS23Y90", "amount": "4.09", "timestamp": "2022-08-04T15:00:48", "status": "I"}'
