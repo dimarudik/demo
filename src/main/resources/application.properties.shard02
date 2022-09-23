@@ -1,5 +1,0 @@
-spring.jpa.hibernate.ddl-auto = update
-spring.datasource.url = jdbc:postgresql://172.22.0.92/shard
-spring.datasource.username = shard
-spring.datasource.password = shard
-spring.jpa.show-sql = true
