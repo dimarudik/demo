@@ -1,5 +1,7 @@
 # To Do
 
+**Image**
+
 1. Build project:
 
 ```
@@ -23,6 +25,42 @@ docker login
 ```
 docker push dimarudik/shard:latest
 ```
+
+---
+
+**Minikube**
+
+1. Start minikube:
+
+```
+minikube start --cpus=6 --memory=8192m
+```
+
+2. Create dashboard:
+
+```
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.6.1/aio/deploy/recommended.yaml
+```
+
+3. Create user:
+
+```
+kubectl apply -f dashboard-adminuser.yaml
+```
+
+4. Create token:
+
+```
+kubectl -n kubernetes-dashboard create token admin-user
+```
+
+5. Start proxy:
+
+```
+kubectl proxy
+```
+
+6. [K8s Dashboard](http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/)
 
 ---
 

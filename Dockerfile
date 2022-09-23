@@ -5,5 +5,5 @@ RUN mkdir -p /app/config
 RUN chown -R spring: /app
 USER spring:spring
 WORKDIR /app
-COPY ./target/demo-0.0.1-SNAPSHOT.jar /app/demo-0.0.1-SNAPSHOT.jar
-ENTRYPOINT ["java","-jar","/app/demo-0.0.1-SNAPSHOT.jar"]
+COPY ./target/shard-0.0.1-SNAPSHOT.jar /app/shard-0.0.1-SNAPSHOT.jar
+ENTRYPOINT ["java","-jar","/app/shard-0.0.1-SNAPSHOT.jar"]
