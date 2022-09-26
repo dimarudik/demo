@@ -20,6 +20,17 @@ spec:
           image: dimarudik/shard
           ports:
             - containerPort: 8080
+          env:
+            - name  : SPRING_DATASOURCE_URL
+              value : "jdbc:postgresql://shard01-pg-service.default.svc.cluster.local/shard"
+            - name  : SPRING_DATASOURCE_USERNAME
+              value : "shard"
+            - name  : SPRING_DATASOURCE_PASSWORD
+              value : "shard"
+            - name  : SPRING_JPA_SHOW-SQL
+              value : "true"
+            - name  : SPRING_JPA_HIBERNATE_DDL-AUTO
+              value : "update"
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler

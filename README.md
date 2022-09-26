@@ -77,3 +77,34 @@ Delete unused volumes
 ```
 docker volume prune
 ```
+
+Start postgres in docker
+
+```
+docker run --name my-postgres -e POSTGRES_USER=shard -e POSTGRES_PASSWORD=shard -e POSTGRES_DB=shard -p 5432:5432 -d postgres
+```
+
+Connect to postgres remotely
+
+```
+psql -h localhost -p 5432 -U shard -W
+```
+
+Start mysql in docker
+
+```
+docker run --name my-mysql -e MYSQL_ROOT_PASSWORD=shard -e MYSQL_DATABASE=shard -e MYSQL_USER=shard -e MYSQL_PASSWORD=shard -p 3306:3306 -d mysql
+```
+
+Connect to mysql remotely
+
+```
+mysql -uroot -p -h 127.0.0.1 --port 3306
+```
+
+PSQL Commands
+
+```
+\l+   # show databases
+\dt+  # show tables
+```
