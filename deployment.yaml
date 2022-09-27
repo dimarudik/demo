@@ -21,16 +21,32 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name  : SPRING_DATASOURCE_URL
-              value : "jdbc:postgresql://shard01-pg-service.default.svc.cluster.local/shard"
-            - name  : SPRING_DATASOURCE_USERNAME
-              value : "shard"
-            - name  : SPRING_DATASOURCE_PASSWORD
-              value : "shard"
+            - name  : DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name  : shard-configmap
+                  key   : database_host
+            - name  : DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name  : shard-configmap
+                  key   : database_name
             - name  : SPRING_JPA_SHOW-SQL
-              value : "true"
+              valueFrom:
+                configMapKeyRef:
+                  name  : shard-configmap
+                  key   : spring_jpa_show-sql
             - name  : SPRING_JPA_HIBERNATE_DDL-AUTO
-              value : "update"
+              valueFrom:
+                configMapKeyRef:
+                  name  : shard-configmap
+                  key   : spring_jpa_hibernate_ddl-auto
+            - name  : SPRING_DATASOURCE_URL
+              value : "jdbc:postgresql://$(DATABASE_HOST)/$(DATABASE_NAME)"
+            - name  : SPRING_DATASOURCE_USERNAME
+              value : shard
+            - name  : SPRING_DATASOURCE_PASSWORD
+              value : shard
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
