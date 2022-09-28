@@ -108,3 +108,10 @@ PSQL Commands
 \l+   # show databases
 \dt+  # show tables
 ```
+
+Base64
+
+```
+echo -n shard | base64
+echo c2hhcmQ= | base64 -d
+```
