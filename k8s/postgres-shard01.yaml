@@ -40,6 +40,12 @@ spec:
                   name  : shard-configmap
                   key   : database_name
             - name: POSTGRES_USER
-              value: shard
+              valueFrom:
+                secretKeyRef:
+                  name  : shard-secret
+                  key   : username
             - name: POSTGRES_PASSWORD
-              value: shard
+              valueFrom:
+                secretKeyRef:
+                  name  : shard-secret
+                  key   : password

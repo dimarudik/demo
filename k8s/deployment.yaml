@@ -44,9 +44,15 @@ spec:
             - name  : SPRING_DATASOURCE_URL
               value : "jdbc:postgresql://$(DATABASE_HOST)/$(DATABASE_NAME)"
             - name  : SPRING_DATASOURCE_USERNAME
-              value : shard
+              valueFrom:
+                secretKeyRef:
+                  name  : shard-secret
+                  key   : username
             - name  : SPRING_DATASOURCE_PASSWORD
-              value : shard
+              valueFrom:
+                secretKeyRef:
+                  name  : shard-secret
+                  key   : password
 ---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
