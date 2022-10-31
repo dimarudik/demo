@@ -5,6 +5,7 @@ import com.example.demo.repository.PaymentRepository;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,10 +17,12 @@ import java.util.UUID;
 public class PaymentService {
     private static final Logger logger = LogManager.getLogger(PaymentService.class);
     private final PaymentRepository paymentRepository;
+    private final JdbcTemplate jdbcTemplate;
 
     @Autowired
-    public PaymentService(PaymentRepository paymentRepository) {
+    public PaymentService(PaymentRepository paymentRepository, JdbcTemplate jdbcTemplate) {
         this.paymentRepository = paymentRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public Optional<Payment> findByUuid(UUID uuid) {
@@ -28,6 +31,8 @@ public class PaymentService {
     }
 
     public Optional<Payment> savePayment(Payment payment) {
+        String shardingKey = payment.getClientId();
+        setSessionShardId(shardingKey);
         return Optional.of(paymentRepository.save(payment));
     }
 
@@ -52,4 +57,17 @@ public class PaymentService {
     public List<Payment> getAllPayments() {
         return paymentRepository.findAll();
     }
+
+    public void setSessionShardId(String shardingKey) {
+        jdbcTemplate.execute("SET SHARD TO " + getShardId(shardingKey));
+    }
+
+    public String getShardId(String shardingKey) {
+        String[] strings = shardingKey.split("-");
+        return String.valueOf(Long.parseLong(
+                    (Long.valueOf(strings[0], 36).toString()
+                    + Long.valueOf(strings[1], 36).toString())
+                    ) % 2);
+    }
 }
+

@@ -1,17 +1,5 @@
 version: '3.9'
 services:
-  balancer:
-    image: openresty/openresty
-    container_name: balancer
-    hostname: balancer
-    ports:
-      - '8080:80'
-    volumes:
-      - ${PWD}/src/main/resources/nginx.conf:/etc/openresty/nginx.conf:ro
-#      - ${PWD}/src/main/resources/nginx.conf:/opt/bitnami/openresty/nginx/conf/nginx.conf:ro
-    networks:
-      my-network:
-        ipv4_address: 172.22.0.2
 
   app01:
     build:
@@ -31,37 +19,7 @@ services:
     networks:
       my-network:
         ipv4_address: 172.22.0.13
-  app03:
-    build:
-      context: ./
-      dockerfile: Dockerfile.db02
-    container_name: app03
-    restart: on-failure
-    networks:
-      my-network:
-        ipv4_address: 172.22.0.16
-  app04:
-    build:
-      context: ./
-      dockerfile: Dockerfile.db02
-    container_name: app04
-    restart: on-failure
-    networks:
-      my-network:
-        ipv4_address: 172.22.0.17
 
-  db01:
-    image: mysql
-    container_name: db01
-    hostname: db01
-    environment:
-      MYSQL_DATABASE: 'shard'
-      MYSQL_USER: 'shard'
-      MYSQL_PASSWORD: 'shard'
-      MYSQL_ROOT_PASSWORD: 'oracle_4U'
-    networks:
-      my-network:
-        ipv4_address: 172.22.0.91
   db02:
     image: postgres
     container_name: db02
