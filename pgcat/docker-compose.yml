@@ -1,0 +1,39 @@
+version: "3"
+services:
+  shard00:
+    image: postgres:14
+    container_name: shard00
+    hostname: shard00
+    environment:
+      POSTGRES_DB: shard
+      POSTGRES_USER: shard
+      POSTGRES_PASSWORD: shard
+      POSTGRES_HOST_AUTH_METHOD: md5
+  shard01:
+    image: postgres:14
+    container_name: shard01
+    hostname: shard01
+    environment:
+      POSTGRES_DB: shard
+      POSTGRES_USER: shard
+      POSTGRES_PASSWORD: shard
+      POSTGRES_HOST_AUTH_METHOD: md5
+  shard02:
+    image: postgres:14
+    container_name: shard02
+    hostname: shard02
+    environment:
+      POSTGRES_DB: shard
+      POSTGRES_USER: shard
+      POSTGRES_PASSWORD: shard
+      POSTGRES_HOST_AUTH_METHOD: md5
+  pgcat:
+    build: .
+    command:
+      - "pgcat"
+      - "/etc/pgcat/pgcat.toml"
+    volumes:
+      - "${PWD}/examples/docker/pgcat.toml:/etc/pgcat/pgcat.toml"
+    ports:
+      - "6432:6432"
+      - "9930:9930"
