@@ -1,0 +1,36 @@
+# https://nicolas.busseneau.fr/en/blog/2020/07/custom-annotations-and-conditional-headers-with-kubernetes-nginx-ingress-controller
+# https://viesure.io/nginx-ingress-controller/
+# https://www.itwonderlab.com/en/istio-patterns-traffic-splitting-in-kubernetes-header-based/
+# https://docs.nginx.com/nginx-ingress-controller/configuration/ingress-resources/advanced-configuration-with-annotations/
+
+#apiVersion: networking.k8s.io/v1
+#kind: Ingress
+#metadata:
+#  name: ingress-nginx
+#  annotations:
+#    nginx.org/proxy-connect-timeout: "30s"
+#    nginx.org/proxy-read-timeout: "20s"
+#    nginx.org/client-max-body-size: "4m"
+#    nginx.org/server-snippets: |
+#      location / {
+#        return 302 /coffee;
+#      }
+##  annotations:
+##    my-annotations/custom-headers: |
+##      headers = ngx.req.get_headers()
+##      if not headers["foo"] then
+##        ngx.req.set_header["foo"] = "bar"
+##      end
+#spec:
+#  rules:
+#    - host: pg.local
+#      http:
+#        paths:
+#          - pathType: Prefix
+#            path: /
+#            backend:
+#              service:
+#                name: shard01-app-service
+#                port:
+#                  number: 8080
+#

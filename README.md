@@ -62,6 +62,13 @@ kubectl proxy
 
 6. [K8s Dashboard](http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/)
 
+
+7. Enable ingress:
+
+```
+minikube addons enable ingress
+```
+
 ---
 
 **Hints**
@@ -107,6 +114,7 @@ PSQL Commands
 ```
 \l+   # show databases
 \dt+  # show tables
+\dn+  # show schemas
 ```
 
 Base64
