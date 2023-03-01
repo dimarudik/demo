@@ -115,6 +115,21 @@ PSQL Commands
 \l+   # show databases
 \dt+  # show tables
 \dn+  # show schemas
+\du+  # show roles
+\dp+  # show privileges
+\dRp+ # show logical replica publications
+\dRs+ # show logical replica subscriptions
+```
+
+PSQL Useful Statements
+
+```
+create table t (id int primary key generated always as identity, n numeric) tablespace ts;
+insert into t(n) select id from generate_series(1,10000) as id;
+vacuum t;
+select pg_relation_filepath('t');
+/usr/lib/postgresql/13/bin/oid2name -d data_lowlevel -f 16423
+/usr/lib/postgresql/13/bin/oid2name -d data_lowlevel -f 16428
 ```
 
 Base64
