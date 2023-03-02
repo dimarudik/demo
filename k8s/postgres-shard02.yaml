@@ -1,10 +1,10 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: shard01-db-service
+  name: shard02-db-service
 spec:
   selector:
-    app: shard01-db
+    app: shard02-db
   ports:
     - name: tcp
       protocol: TCP
@@ -13,18 +13,18 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: shard01-db
+  name: shard02-db
 spec:
   selector:
     matchLabels:
-      app: shard01-db
+      app: shard02-db
   template:
     metadata:
       labels:
-        app: shard01-db
+        app: shard02-db
     spec:
       containers:
-        - name: shard01-db
+        - name: shard02-db
           image: postgres:latest
           args: ["-c", "wal_level=logical"]
           ports:

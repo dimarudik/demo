@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: shard-configmap
 data:
-  database_host                 : "shard01-pg-service.default.svc.cluster.local"
+  database_host                 : "shard01-db-service.default.svc.cluster.local"
   database_name                 : "shard"
   spring_jpa_show-sql           : "true"
   spring_jpa_hibernate_ddl-auto : "update"
