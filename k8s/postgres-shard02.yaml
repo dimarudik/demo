@@ -25,7 +25,7 @@ spec:
     spec:
       containers:
         - name: shard02-db
-          image: postgres:latest
+          image: dimarudik/postgres:latest
           args: ["-c", "wal_level=logical"]
           ports:
             - name: tpc

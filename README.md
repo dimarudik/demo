@@ -127,6 +127,9 @@ PSQL Useful Statements
 create table t (id int primary key generated always as identity, n numeric) tablespace ts;
 insert into t(n) select id from generate_series(1,10000) as id;
 vacuum t;
+create extension pageinspect;
+select get_raw_page('t',0); -- show raw page
+select heap_page_items(get_raw_page('t',0)); -- show readable page
 select pg_relation_filepath('t');
 /usr/lib/postgresql/13/bin/oid2name -d data_lowlevel -f 16423
 /usr/lib/postgresql/13/bin/oid2name -d data_lowlevel -f 16428
