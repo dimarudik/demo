@@ -127,9 +127,38 @@ PSQL Useful Statements
 create table t (id int primary key generated always as identity, n numeric) tablespace ts;
 insert into t(n) select id from generate_series(1,10000) as id;
 vacuum t;
+
 create extension pageinspect;
 select get_raw_page('t',0); -- show raw page
 select heap_page_items(get_raw_page('t',0)); -- show readable page
+CREATE VIEW t_v AS
+SELECT '(0,'||lp||')' AS ctid,
+       CASE lp_flags
+         WHEN 0 THEN 'unused'
+         WHEN 1 THEN 'normal'
+         WHEN 2 THEN 'redirect to '||lp_off
+         WHEN 3 THEN 'dead'
+       END AS state,
+       t_xmin || CASE
+         WHEN (t_infomask & 256) > 0 THEN ' (c)'
+         WHEN (t_infomask & 512) > 0 THEN ' (a)'
+         ELSE ''
+       END AS xmin,
+       t_xmax || CASE
+         WHEN (t_infomask & 1024) > 0 THEN ' (c)'
+         WHEN (t_infomask & 2048) > 0 THEN ' (a)'
+         ELSE ''
+       END AS xmax,
+       CASE WHEN (t_infomask2 & 16384) > 0 THEN 't' END AS hhu,
+       CASE WHEN (t_infomask2 & 32768) > 0 THEN 't' END AS hot,
+       t_ctid
+FROM heap_page_items(get_raw_page('t',0))
+ORDER BY lp;
+CREATE VIEW t_id_v AS
+SELECT itemoffset,
+       ctid
+FROM bt_page_items('t_id',1);
+
 select pg_relation_filepath('t');
 /usr/lib/postgresql/13/bin/oid2name -d data_lowlevel -f 16423
 /usr/lib/postgresql/13/bin/oid2name -d data_lowlevel -f 16428
