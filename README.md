@@ -131,6 +131,7 @@ vacuum t;
 create extension pageinspect;
 select get_raw_page('t',0); -- show raw page
 select heap_page_items(get_raw_page('t',0)); -- show readable page
+
 CREATE VIEW t_v AS
 SELECT '(0,'||lp||')' AS ctid,
        CASE lp_flags
@@ -154,10 +155,31 @@ SELECT '(0,'||lp||')' AS ctid,
        t_ctid
 FROM heap_page_items(get_raw_page('t',0))
 ORDER BY lp;
+
 CREATE VIEW t_id_v AS
 SELECT itemoffset,
        ctid
 FROM bt_page_items('t_id',1);
+
+CREATE VIEW vacuum_v AS
+WITH params AS (
+  SELECT (SELECT setting::integer
+          FROM   pg_settings
+          WHERE  name = 'autovacuum_vacuum_threshold') AS vacuum_threshold,
+         (SELECT setting::float
+          FROM   pg_settings
+          WHERE  name = 'autovacuum_vacuum_scale_factor') AS vacuum_scale_factor
+)
+SELECT st.relname,
+       st.n_dead_tup dead_tup,
+       (p.vacuum_threshold + p.vacuum_scale_factor*c.reltuples)::integer max_dead_tup,
+       st.n_dead_tup > (p.vacuum_threshold + p.vacuum_scale_factor*c.reltuples)::integer need_vacuum,
+       st.last_autovacuum
+FROM   pg_stat_all_tables st,
+       pg_class c,
+       params p
+WHERE  c.oid = st.relid
+AND    c.relname = 'tvac';
 
 select pg_relation_filepath('t');
 /usr/lib/postgresql/13/bin/oid2name -d data_lowlevel -f 16423
