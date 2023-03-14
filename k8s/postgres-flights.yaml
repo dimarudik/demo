@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: flights-db-service
+spec:
+  selector:
+    app: flights-db
+  ports:
+    - name: tcp
+      protocol: TCP
+      port: 5432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flights-db
+spec:
+  selector:
+    matchLabels:
+      app: flights-db
+  template:
+    metadata:
+      labels:
+        app: flights-db
+    spec:
+      containers:
+        - name: flights-db
+          image: dimarudik/flights:latest
+          args: ["-c", "wal_level=logical", "-c", "search_path=bookings,public", "-c", "log_statement=all", "-c", "logging_collector=on"]
+          ports:
+            - name: tpc
+              protocol: TCP
+              containerPort: 5432
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : database_name
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name  : flights-secret
+                  key   : username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name  : flights-secret
+                  key   : password

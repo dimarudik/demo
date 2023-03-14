@@ -112,13 +112,14 @@ mysql -uroot -p -h 127.0.0.1 --port 3306
 PSQL Commands
 
 ```
-\l+   # show databases
-\dt+  # show tables
-\dn+  # show schemas
-\du+  # show roles
-\dp+  # show privileges
-\dRp+ # show logical replica publications
-\dRs+ # show logical replica subscriptions
+\l+                 # show databases
+\d+ <table name>    # show table definition
+\dt+                # show tables
+\dn+                # show schemas
+\du+                # show roles
+\dp+                # show privileges
+\dRp+               # show logical replica publications
+\dRs+               # show logical replica subscriptions
 ```
 
 PSQL Useful Statements

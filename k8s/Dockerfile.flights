@@ -1,0 +1,8 @@
+FROM dimarudik/postgres
+USER postgres:postgres
+RUN cd /var/lib/postgresql && git clone https://github.com/dimarudik/bigfiles.git
+#docker build -t dimarudik/flights -f Dockerfile.flights .
+#docker run --name my -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=postgres -d dimarudik/flights
+#cd /var/lib/postgres/bigfiles
+#psql -f demo.sql
+#SET bookings.lang = 'ru';
