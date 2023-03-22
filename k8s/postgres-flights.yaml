@@ -26,7 +26,7 @@ spec:
       containers:
         - name: flights-db
           image: dimarudik/flights:latest
-          args: ["-c", "wal_level=logical", "-c", "search_path=bookings,public", "-c", "log_statement=all", "-c", "logging_collector=on"]
+          args: ["-c", "wal_level=logical", "-c", "search_path=bookings,public", "-c", "log_statement=all", "-c", "logging_collector=on", "-c", "shared_preload_libraries=pg_show_plans"]
           ports:
             - name: tpc
               protocol: TCP

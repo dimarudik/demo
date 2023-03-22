@@ -1,8 +1,13 @@
 FROM dimarudik/postgres
 USER postgres:postgres
-RUN cd /var/lib/postgresql && git clone https://github.com/dimarudik/bigfiles.git
+RUN cd /var/lib/postgresql && git clone https://github.com/dimarudik/bigfiles.git && git clone https://github.com/cybertec-postgresql/pg_show_plans.git
+USER root:root
+RUN cd /var/lib/postgresql/pg_show_plans && make USE_PGXS=1 && make USE_PGXS=1 install
+USER postgres:postgres
 #docker build -t dimarudik/flights -f Dockerfile.flights .
-#docker run --name my -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=postgres -d dimarudik/flights
+#docker run --name my -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=postgres -d dimarudik/flights -c shared_preload_libraries=pg_show_plans
+#https://github.com/cybertec-postgresql/pg_show_plans
+#https://www.postgresql.org/message-id/15003.1276177819%40sss.pgh.pa.us
 #cd /var/lib/postgres/bigfiles
 #psql -f demo.sql
 #SET bookings.lang = 'ru';
