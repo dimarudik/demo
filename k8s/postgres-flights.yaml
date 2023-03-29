@@ -26,7 +26,8 @@ spec:
       containers:
         - name: flights-db
           image: dimarudik/flights:latest
-          args: ["-c", "wal_level=logical", "-c", "search_path=bookings,public", "-c", "log_statement=all", "-c", "logging_collector=on", "-c", "shared_preload_libraries=pg_show_plans"]
+#          args: ["-c", "wal_level=logical", "-c", "search_path=bookings,public", "-c", "log_statement=all", "-c", "logging_collector=on", "-c", "shared_preload_libraries=pg_stat_statements,pg_show_plans"]
+          args: ["-c", "wal_level=logical", "-c", "shared_buffers=2GB", "-c", "max_wal_size=2GB", "-c", "search_path=bookings,public", "-c", "log_directory=pg_log", "-c", "log_filename=%u_%a.log", "-c", "logging_collector=on", "-c", "log_min_duration_statement=3000", "-c", "log_statement=ddl", "-c", "wal_log_hints=on", "-c", "shared_preload_libraries=pg_stat_statements,pg_show_plans"]
           ports:
             - name: tpc
               protocol: TCP
@@ -47,3 +48,6 @@ spec:
                 secretKeyRef:
                   name  : flights-secret
                   key   : password
+#cat .psqlrc
+#\set logs 'select name, setting, unit from pg_settings where name like \'log%\' ;'
+#\pset pager off

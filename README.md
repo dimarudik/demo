@@ -115,6 +115,7 @@ PSQL Commands
 \l+                 # show databases
 \d+ <table name>    # show table definition
 \dt+                # show tables
+\dt public.*        # show tables in schema
 \dn+                # show schemas
 \du+                # show roles
 \dp+                # show privileges
