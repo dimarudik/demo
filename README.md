@@ -116,9 +116,10 @@ PSQL Commands
 \d+ <table name>    # show table definition
 \dt+                # show tables
 \dt public.*        # show tables in schema
+\db+                # show tablespaces
 \dn+                # show schemas
 \du+                # show roles
-\dp+                # show privileges
+\dp+ <schema>.*     # show privileges
 \dRp+               # show logical replica publications
 \dRs+               # show logical replica subscriptions
 ```
@@ -129,6 +130,10 @@ PSQL Useful Statements
 create table t (id int primary key generated always as identity, n numeric) tablespace ts;
 insert into t(n) select id from generate_series(1,10000) as id;
 vacuum t;
+
+create table t_toast (id int, name text);
+INSERT INTO t_toast(id, name)
+    SELECT 0, string_agg(id::text,'.') FROM generate_series(1,10000) AS id;
 
 create extension pageinspect;
 select get_raw_page('t',0); -- show raw page
