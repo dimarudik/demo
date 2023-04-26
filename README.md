@@ -114,7 +114,7 @@ PSQL Commands
 ```
 \l+                 # show databases
 \d+ <table name>    # show table definition
-\dt+                # show tables
+\dt+ <schema>.*     # show tables
 \dt public.*        # show tables in schema
 \db+                # show tablespaces
 \dn+                # show schemas

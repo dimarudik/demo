@@ -5,6 +5,14 @@ metadata:
 data:
 #  database_host                 : "shard01-db-service.default.svc.cluster.local"
   database_name                 : "postgres"
+  pgbouncer_database            : "*"
+  pgbouncer_auth_user           : "postgres"
+  pgbouncer_port                : "7432"
+  pgbouncer_pool_mode_s         : "session"
+  pgbouncer_pool_mode_t         : "transaction"
+  postgresql_host               : "localhost"
+  pgbouncer_auth_query          : "SELECT usename, passwd FROM pg_shadow WHERE usename=$1"
+  pgbouncer_auth_type           : "md5"
   spring_jpa_show-sql           : "true"
   spring_jpa_hibernate_ddl-auto : "update"
 #  properties: |

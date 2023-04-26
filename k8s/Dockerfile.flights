@@ -1,11 +1,14 @@
 FROM dimarudik/postgres
 USER postgres:postgres
-RUN cd /var/lib/postgresql && git clone https://github.com/dimarudik/bigfiles.git && git clone https://github.com/cybertec-postgresql/pg_show_plans.git && git clone https://github.com/EnterpriseDB/pldebugger.git && git clone https://github.com/okbob/plpgsql_check.git
+RUN cd /var/lib/postgresql && git clone https://github.com/dimarudik/bigfiles.git && git clone https://github.com/cybertec-postgresql/pg_show_plans.git && git clone https://github.com/EnterpriseDB/pldebugger.git && git clone https://github.com/okbob/plpgsql_check.git && git clone https://github.com/postgrespro/pg_hint_plan.git pg_hint_plan && git clone https://github.com/yandex/odyssey.git
 RUN cd /var/lib/postgresql && echo "\set logs 'select name, setting, unit from pg_settings where name like \$\$log%\$\$;'" >> .psqlrc && echo "\pset pager off" >> .psqlrc
 USER root:root
 RUN cd /var/lib/postgresql/pg_show_plans && make USE_PGXS=1 && make USE_PGXS=1 install
 RUN cd /var/lib/postgresql/pldebugger && make USE_PGXS=1 && make USE_PGXS=1 install
 RUN cd /var/lib/postgresql/plpgsql_check && make USE_PGXS=1 clean && make USE_PGXS=1 install
+RUN cd /var/lib/postgresql/pg_hint_plan && make && make install
+RUN cd /var/lib/postgresql/odyssey && make local_build
+RUN /var/lib/postgresql/odyssey/build/sources/odyssey /var/lib/postgresql/odyssey/odyssey.conf
 USER postgres:postgres
 #docker build -t dimarudik/flights -f Dockerfile.flights .
 #docker run --name my -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=postgres -d dimarudik/flights -c shared_preload_libraries="pg_stat_statements,pg_show_plans,plugin_debugger"
