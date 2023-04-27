@@ -142,6 +142,12 @@ spec:
                 configMapKeyRef:
                   name  : flights-configmap
                   key   : pgbouncer_auth_query
+        - name: odyssey
+          image: dimarudik/odyssey:latest
+          ports:
+            - name: tpc
+              protocol: TCP
+              containerPort: 8432
 #cat .psqlrc
 #\set logs 'select name, setting, unit from pg_settings where name like \'log%\' ;'
 #\pset pager off
