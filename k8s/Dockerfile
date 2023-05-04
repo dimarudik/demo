@@ -1,6 +1,6 @@
 FROM postgres:latest
 #docker run --name my -e POSTGRES_USER=shard -e POSTGRES_PASSWORD=shard -e POSTGRES_DB=shard -d dimarudik/postgres
-#docker build . -t dimarudik/postgres
+#docker build . -t dimarudik/postgres-extensions
 #k exec -it pod/flights-db-77cb984fc4-ws8hv bash -c flights-db
 RUN apt-get update -y && apt-get -y install wget curl vim less bsdmainutils binutils git git-lfs procps make build-essential libpq-dev postgresql-server-dev-15 libkrb5-dev libicu-dev libssl-dev
 #RUN cd /tmp && wget https://github.com/Kitware/CMake/releases/download/v3.26.3/cmake-3.26.3.tar.gz && tar -zxvf cmake-3.26.3.tar.gz && cd cmake-3.26.3 && ./bootstrap && make && make install
@@ -8,3 +8,6 @@ RUN unlink /etc/localtime && ln -s /usr/share/zoneinfo/Europe/Moscow /etc/localt
 #RUN timedatectl set-timezone Europe/Moscow
 #psql postgresql://postgres@localhost:6432/postgres?password=postgres
 #kill -1 1 # reload config pgbouncer
+#create role odyssey login superuser password 'odyssey';
+#create role test login password 'test';
+#k port-forward service/odyssey-transaction 8432:8432

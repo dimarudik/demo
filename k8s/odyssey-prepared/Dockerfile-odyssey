@@ -16,13 +16,8 @@ RUN make local_build && \
     rm odyssey.conf && \
     wget https://raw.githubusercontent.com/dimarudik/demo/minikube/k8s/odyssey-prepared/odyssey.conf
 RUN dpkg-buildpackage -us -uc
-RUN addgroup odyssey && \
-    useradd odyssey -g odyssey && \
-    chown -R odyssey: /opt/odyssey
-#USER odyssey:odyssey
 WORKDIR /opt/odyssey
 
 ENTRYPOINT ["./build/sources/odyssey","odyssey.conf"]
 
-#docker build . -t dimarudik/odyssey
-#docker build -t dimarudik/odyssey -f Dockerfile-odyssey .
+#docker build -t dimarudik/odyssey-package -f Dockerfile-odyssey .
