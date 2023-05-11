@@ -16,12 +16,12 @@ kubectl create namespace yb-demo
 3. Install env:
 
 ```
-helm install yb-demo yugabyte/ --version 2.17.2 \
+helm install yb-demo k8s/yugabyte/ --version 2.17.2 \
 --set replicas.master=1,replicas.tserver=1
 ```
 or
 ```
-helm install yb-demo yugabyte/ \
+helm install yb-demo k8s/yugabyte/ \
 --version 2.17.2 \
 --set resource.master.requests.cpu=0.5,resource.master.requests.memory=0.5Gi,\
 resource.tserver.requests.cpu=0.5,resource.tserver.requests.memory=0.5Gi,\
@@ -31,7 +31,7 @@ replicas.master=1,replicas.tserver=1
 4. Upgrade
 
 ```
-helm upgrade yb-demo yugabyte/ --set replicas.tserver=4
+helm upgrade yb-demo k8s/yugabyte/ --set replicas.tserver=4
 ```
 
 5. List help deployments:
