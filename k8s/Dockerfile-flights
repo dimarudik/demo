@@ -1,7 +1,7 @@
-FROM dimarudik/postgres
+FROM dimarudik/postgres-extensions
 USER postgres:postgres
 RUN cd /var/lib/postgresql && git clone https://github.com/dimarudik/bigfiles.git && git clone https://github.com/cybertec-postgresql/pg_show_plans.git && git clone https://github.com/EnterpriseDB/pldebugger.git && git clone https://github.com/okbob/plpgsql_check.git && git clone https://github.com/postgrespro/pg_hint_plan.git pg_hint_plan
-RUN cd /var/lib/postgresql && echo "\set logs 'select name, setting, unit from pg_settings where name like \$\$log%\$\$;'" >> .psqlrc && echo "\pset pager off" >> .psqlrc
+#RUN cd /var/lib/postgresql && echo "\set logs 'select name, setting, unit from pg_settings where name like \$\$log%\$\$;'" >> .psqlrc && echo "\pset pager off" >> .psqlrc
 USER root:root
 RUN cd /var/lib/postgresql/pg_show_plans && make USE_PGXS=1 && make USE_PGXS=1 install
 RUN cd /var/lib/postgresql/pldebugger && make USE_PGXS=1 && make USE_PGXS=1 install
@@ -10,10 +10,10 @@ RUN cd /var/lib/postgresql/pg_hint_plan && make && make install
 #RUN cd /var/lib/postgresql/odyssey && make local_build && rm odyssey.conf && wget https://raw.githubusercontent.com/dimarudik/demo/minikube/k8s/odyssey-prepared/odyssey.conf
 USER postgres:postgres
 #RUN /var/lib/postgresql/odyssey/build/sources/odyssey /var/lib/postgresql/odyssey/odyssey.conf
-#docker build -t dimarudik/flights -f Dockerfile.flights .
+#docker build ./k8s/ -t dimarudik/flights -f ./k8s/Dockerfile-flights
 #docker run --name my -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=postgres -d dimarudik/flights -c shared_preload_libraries="pg_stat_statements,pg_show_plans,plugin_debugger"
 #https://github.com/cybertec-postgresql/pg_show_plans
 #https://www.postgresql.org/message-id/15003.1276177819%40sss.pgh.pa.us
 #cd /var/lib/postgres/bigfiles
-#psql -f demo.sql
+#psql -f ../bigfiles/demo.sql
 #SET bookings.lang = 'ru';

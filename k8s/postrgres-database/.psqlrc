@@ -1,0 +1,3 @@
+\pset pager off
+\set a 'select pid, usename, wait_event, query, state, query_start, client_addr from pg_stat_activity order by query_start nulls first;'
+\set lsn 'select pg_current_wal_lsn() "current", sent_lsn "sent", write_lsn "writed on replica", flush_lsn "flushed on replica", replay_lsn "applied on replica", write_lag, flush_lag, replay_lag from pg_stat_replication;'
