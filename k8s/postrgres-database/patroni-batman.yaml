@@ -1,0 +1,63 @@
+scope: batman
+name: postgres0.default.svc.cluster.local
+
+restapi:
+  listen: 0.0.0.0:8008
+  connect_address: 0.0.0.0:8008
+etcd:
+  host: etcd-client.default.svc.cluster.local:2379
+bootstrap:
+  dcs:
+    ttl: 30
+    loop_wait: 10
+    retry_timeout: 10
+    maximum_lag_on_failover: 1048576
+    postgresql:
+      use_pg_rewind: true
+      pg_hba:
+        - local all all trust
+        - host replication postgres postgres0.default.svc.cluster.local md5
+        - host replication postgres postgres1.default.svc.cluster.local md5
+        - host all all 0.0.0.0/0 md5
+      parameters:
+        archive_mode: "on"
+        archive_timeout: 1800s
+        archive_command: mkdir -p ../wal_archive && test ! -f ../wal_archive/%f && cp %p ../wal_archive/%f
+      recovery_conf:
+        restore_command: cp ../wal_archive/%f %p
+
+  initdb:
+    - encoding: UTF8
+    - data-checksums
+
+  users:
+    admin:
+      password: admin%
+      options:
+        - createrole
+        - createdb
+
+postgresql:
+  listen: 0.0.0.0:5433
+  connect_address: postgres0.default.svc.cluster.local:5433
+
+  data_dir: pgsys
+  pgpass: /tmp/pgpass0
+  authentication:
+    replication:
+      username: postgres
+      password: postgres
+    superuser:
+      username: postgres
+      password: postgres
+    rewind:
+      username: rewind_user
+      password: rewind_user
+  parameters:
+    unix_socket_directories: '..'  # parent directory of data_dir
+
+tags:
+  nofailover: false
+  noloadbalance: false
+  clonefrom: false
+  nosync: false

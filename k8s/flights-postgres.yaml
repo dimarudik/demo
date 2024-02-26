@@ -1,10 +1,23 @@
+#https://leftasexercise.com/2019/06/10/stateful-sets-with-kubernetes/
 apiVersion: v1
 kind: Service
 metadata:
-  name: pgbouncer-transaction
+  name: postgres0
 spec:
   selector:
-    app: flights-db
+    app: postgres0
+  ports:
+    - name: tcp
+      protocol: TCP
+      port: 5433
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres0-pgbouncer-t
+spec:
+  selector:
+    app: postgres0
   ports:
     - name: tcp
       protocol: TCP
@@ -13,10 +26,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: pgbouncer-session
+  name: postgres0-pgbouncer-s
 spec:
   selector:
-    app: flights-db
+    app: postgres0
   ports:
     - name: tcp
       protocol: TCP
@@ -25,31 +38,31 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: odyssey-transaction
+  name: postgres0-odyssey-t
 spec:
   selector:
-    app: flights-db
+    app: postgres0
   ports:
     - name: tcp
       protocol: TCP
       port: 8432
 ---
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
-  name: flights-db
+  name: postgres0
 spec:
   selector:
     matchLabels:
-      app: flights-db
+      app: postgres0
   template:
     metadata:
       labels:
-        app: flights-db
+        app: postgres0
     spec:
       containers:
 # POSTGRESQL DB
-        - name: flights-db
+        - name: postgres0
 #          image: dimarudik/postgres:latest
           image: dimarudik/flights:latest
 #          args: [ "-c", "shared_buffers=2GB", "-c", "max_wal_size=2GB", ]
@@ -62,8 +75,10 @@ spec:
           volumeMounts:
             - name: main
               mountPath: /var/lib/postgresql/data
-            - name: replica
-              mountPath: /var/lib/postgresql/replica
+            - name: postgres0
+              mountPath: /var/lib/postgresql/postgres0
+            - name: postgres1
+              mountPath: /var/lib/postgresql/postgres1
           env:
             - name: POSTGRES_DB
               valueFrom:
@@ -87,7 +102,7 @@ spec:
                   key   : password
 ####### POOLS
 # pgbouncer transaction
-        - name: pgbouncer-transaction
+        - name: postgres0-pgbouncer-t
           image: bitnami/pgbouncer:latest
           ports:
             - name: tpc
@@ -140,7 +155,7 @@ spec:
                   name  : flights-configmap
                   key   : ignore_startup_parameters
 # pgbouncer session
-        - name: pgbouncer-session
+        - name: postgres0-pgbouncer-s
           image: bitnami/pgbouncer:latest
           ports:
             - name: tpc
@@ -193,7 +208,7 @@ spec:
                   name  : flights-configmap
                   key   : ignore_startup_parameters
 # odyssey
-        - name: odyssey
+        - name: postgres0-odyssey-t
           image: dimarudik/odyssey:latest
           ports:
             - name: tpc
@@ -205,26 +220,288 @@ spec:
           volumeMounts:
             - name: main
               mountPath: /workdir/main
-            - name: replica
-              mountPath: /workdir/replica
-          command: ["sh", "-c", "/bin/chown -R 999:999 /workdir/main ; /bin/chown -R 999:999 /workdir/replica ; /bin/chmod 0750 /workdir/replica ; rm -rf /workdir/replica/* ; rm -rf /workdir/main/* "]
+            - name: postgres0
+              mountPath: /workdir/postgres0
+            - name: postgres1
+              mountPath: /workdir/postgres1
+          command: ["sh", "-c", "/bin/chown -R 999:999 /workdir/main ; /bin/chown -R 999:999 /workdir/postgres1 ; /bin/chown -R 999:999 /workdir/postgres0 ; /bin/chmod 0750 /workdir/postgres1 ; /bin/chmod 0750 /workdir/postgres0 ; rm -rf /workdir/postgres1/* ; rm -rf /workdir/postgres0/* ; rm -rf /workdir/main/* "]
       volumes:
         - name: main
           hostPath:
             path: /data/main
-        - name: replica
+        - name: postgres0
           hostPath:
-            path: /data/replica
+            path: /data/postgres0
+        - name: postgres1
+          hostPath:
+            path: /data/postgres1
+---
+###################################################################################################################
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres1
+spec:
+  selector:
+    app: postgres1
+  ports:
+    - name: tcp
+      protocol: TCP
+      port: 5433
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres1-pgbouncer-t
+spec:
+  selector:
+    app: postgres1
+  ports:
+    - name: tcp
+      protocol: TCP
+      port: 6432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres1-pgbouncer-s
+spec:
+  selector:
+    app: postgres1
+  ports:
+    - name: tcp
+      protocol: TCP
+      port: 7432
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres1-odyssey-t
+spec:
+  selector:
+    app: postgres1
+  ports:
+    - name: tcp
+      protocol: TCP
+      port: 8432
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres1
+spec:
+  selector:
+    matchLabels:
+      app: postgres1
+  template:
+    metadata:
+      labels:
+        app: postgres1
+    spec:
+      containers:
+        # POSTGRESQL DB
+        - name: postgres1
+          #          image: dimarudik/postgres:latest
+          image: dimarudik/flights:latest
+          #          args: [ "-c", "shared_buffers=2GB", "-c", "max_wal_size=2GB", ]
+          #          args: ["-c", "log_min_duration_statement=0", "-c", "log_statement=all", "-c", "shared_preload_libraries=pg_stat_statements,pg_show_plans,plugin_debugger,plpgsql_check,pg_hint_plan", "-c", "search_path=bookings,public"]
+          args: ["-c", "cluster_name=main", "-c", "password_encryption=md5", "-c", "wal_level=logical", "-c", "log_directory=pg_log", "-c", "log_filename=%u_%a.log", "-c", "logging_collector=on", "-c", "wal_log_hints=on"]
+          ports:
+            - name: tpc
+              protocol: TCP
+              containerPort: 5432
+          volumeMounts:
+            - name: main
+              mountPath: /var/lib/postgresql/data
+            - name: postgres0
+              mountPath: /var/lib/postgresql/postgres0
+            - name: postgres1
+              mountPath: /var/lib/postgresql/postgres1
+          env:
+            - name: POSTGRES_DB
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : database_name
+            - name: POSTGRES_HOST_AUTH_METHOD
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : host_auth_method
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name  : flights-secret
+                  key   : username
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name  : flights-secret
+                  key   : password
+        ####### POOLS
+        # pgbouncer transaction
+        - name: postgres1-pgbouncer-t
+          image: bitnami/pgbouncer:latest
+          ports:
+            - name: tpc
+              protocol: TCP
+              containerPort: 6432
+          env:
+            - name: POSTGRESQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : postgresql_host
+            - name: POSTGRESQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name  : flights-secret
+                  key   : username
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name  : flights-secret
+                  key   : password
+            - name: PGBOUNCER_POOL_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : pgbouncer_pool_mode_t
+            - name: PGBOUNCER_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : pgbouncer_database
+            - name: PGBOUNCER_AUTH_USER
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : pgbouncer_auth_user
+            - name: PGBOUNCER_AUTH_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : pgbouncer_auth_query
+            - name: PGBOUNCER_AUTH_TYPE
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : pgbouncer_auth_type
+            - name: PGBOUNCER_IGNORE_STARTUP_PARAMETERS
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : ignore_startup_parameters
+        # pgbouncer session
+        - name: postgres1-pgbouncer-s
+          image: bitnami/pgbouncer:latest
+          ports:
+            - name: tpc
+              protocol: TCP
+              containerPort: 7432
+          env:
+            - name: PGBOUNCER_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : pgbouncer_port
+            - name: POSTGRESQL_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : postgresql_host
+            - name: POSTGRESQL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name  : flights-secret
+                  key   : username
+            - name: POSTGRESQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name  : flights-secret
+                  key   : password
+            - name: PGBOUNCER_POOL_MODE
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : pgbouncer_pool_mode_s
+            - name: PGBOUNCER_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : pgbouncer_database
+            - name: PGBOUNCER_AUTH_USER
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : pgbouncer_auth_user
+            - name: PGBOUNCER_AUTH_QUERY
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : pgbouncer_auth_query
+            - name: PGBOUNCER_IGNORE_STARTUP_PARAMETERS
+              valueFrom:
+                configMapKeyRef:
+                  name  : flights-configmap
+                  key   : ignore_startup_parameters
+        # odyssey
+        - name: postgres1-odyssey-t
+          image: dimarudik/odyssey:latest
+          ports:
+            - name: tpc
+              protocol: TCP
+              containerPort: 8432
+      initContainers:
+        - name: install
+          image: busybox:latest
+          volumeMounts:
+            - name: main
+              mountPath: /workdir/main
+            - name: postgres0
+              mountPath: /workdir/postgres0
+            - name: postgres1
+              mountPath: /workdir/postgres1
+          command: ["sh", "-c", "/bin/chown -R 999:999 /workdir/main ; /bin/chown -R 999:999 /workdir/postgres1 ; /bin/chown -R 999:999 /workdir/postgres0 ; /bin/chmod 0750 /workdir/postgres1 ; /bin/chmod 0750 /workdir/postgres0 ; rm -rf /workdir/postgres1/* ; rm -rf /workdir/postgres0/* ; rm -rf /workdir/main/* "]
+      volumes:
+        - name: main
+          hostPath:
+            path: /data/main
+        - name: postgres0
+          hostPath:
+            path: /data/postgres0
+        - name: postgres1
+          hostPath:
+            path: /data/postgres1
+---
 
-#select pid, pg_blocking_pids(pid) blockers, locktype, relation::regclass, page, tuple, transactionid, virtualtransaction, mode, granted, waitstart from pg_locks;
 #  select pg_create_physical_replication_slot('replica');
 #  alter system set synchronous_standby_names = 'replica';
-#  pg_basebackup --pgdata=/var/lib/postgresql/replica -R --slot=replica
-#  echo "port = 5433" >> /var/lib/postgresql/replica/postgresql.conf
-#  echo "cluster_name = 'replica'" >> /var/lib/postgresql/replica/postgresql.conf
-#  pg_ctl start -D /var/lib/postgresql/replica
+#  pg_basebackup --pgdata=/var/lib/postgresql/postgres1 -R --slot=replica
+#  echo "port = 5433" >> /var/lib/postgresql/postgres1/postgresql.conf
+#  echo "cluster_name = 'replica'" >> /var/lib/postgresql/postgres1/postgresql.conf
+#  pg_ctl start -D /var/lib/postgresql/postgres1 -o "--max_connections=100" -l logfile
 #  SELECT * FROM pg_stat_replication \gx
-#  psql -h localhost -p 5433
+#  psql -p 5433
 #  SELECT pg_is_in_recovery();
 #  select * from pg_replication_slots;
 #  select pg_reload_conf();
+#  pg_basebackup --pgdata=/var/lib/postgresql/postgres1
+#  export PGPORT=5433
+#
+#  pg_basebackup --pgdata=/var/lib/postgresql/postgres0
+#  echo "port = 5434" >> /var/lib/postgresql/postgres0/postgresql.conf
+#  echo "log_directory='pg_log'" >> /var/lib/postgresql/postgres0/postgresql.conf
+#  echo "log_filename='%u_%a.log'" >> /var/lib/postgresql/postgres0/postgresql.conf
+#  echo "logging_collector=on"  >> /var/lib/postgresql/postgres0/postgresql.conf
+#  pg_ctl start -D /var/lib/postgresql/postgres0 -o "--max_connections=100" -l logfile
+#  psql -p 5434
+#  select pg_create_physical_replication_slot('replica');
+#  alter system set synchronous_standby_names = 'replica';
+#  pg_basebackup --pgdata=/var/lib/postgresql/postgres1 -p 5434 -R --slot=replica
+#  echo "log_directory='pg_log'" >> /var/lib/postgresql/postgres1/postgresql.conf
+#  echo "log_filename='%u_%a.log'" >> /var/lib/postgresql/postgres1/postgresql.conf
+#  echo "logging_collector=on"  >> /var/lib/postgresql/postgres1/postgresql.conf
+#  echo "port = 5433" >> /var/lib/postgresql/postgres1/postgresql.conf
+#  echo "cluster_name = 'replica'" >> /var/lib/postgresql/postgres1/postgresql.conf
+#  pg_ctl start -D /var/lib/postgresql/postgres1 -o "--max_connections=100" -l logfile

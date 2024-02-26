@@ -1,0 +1,3 @@
+# docker build ./k8s -f ./k8s/Dockerfile-etcd -t dimarudik/etcd --no-cache --progress=plain
+FROM gcr.io/etcd-development/etcd:v3.4.26
+ENV ETCD_ENABLE_V2=true

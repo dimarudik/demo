@@ -122,6 +122,8 @@ PSQL Commands
 \dp+ <schema>.*     # show privileges
 \dRp+               # show logical replica publications
 \dRs+               # show logical replica subscriptions
+\dew+               # show FDW list
+\des+               # show remote servers
 ```
 
 PSQL Useful Statements
